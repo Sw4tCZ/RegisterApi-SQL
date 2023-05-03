@@ -6,10 +6,10 @@ Tato webová aplikace je navržena v angličtině tak, aby uživatelům umožnil
   Po úspěšném přihlášení získá uživatel přístup k ovládacímu panelu (dashboard). V SQL databázi je navíc heslo zašifrované pomocí werkzeug-hash.
 
 - Dashboard: Na ovládacím panelu mohou uživatelé spravovat své dovednosti. 
-  Mohou přidávat, upravovat a odebírat dovednosti ze seznamu. Seznam dovedností je reprezentován nečíslovaným seznamem a každá dovednost je zobrazena jako položka seznamu spolu s tlačítky pro úpravu a odstranění.
+  Mohou přidávat, upravovat a odebírat dovednosti ze seznamu. Seznam dovedností je reprezentován nečíslovaným seznamem a každá dovednost je zobrazena jako       položka seznamu spolu s tlačítky pro úpravu a odstranění.
 
-    - Přidání dovednosti: Uživatelé mohou přidávat nové dovednosti pomocí formuláře, který obsahuje pole pro název a funkci dovednosti. 
-      Po odeslání formuláře je dovednost přidána do seznamu a zobrazena na ovládacím panelu.
+      - Přidání dovednosti: Uživatelé mohou přidávat nové dovednosti pomocí formuláře, který obsahuje pole pro název a funkci dovednosti. 
+        Po odeslání formuláře je dovednost přidána do seznamu a zobrazena na ovládacím panelu.
       
       - Editace dovednosti: Uživatelé mohou upravovat existující dovednosti kliknutím na tlačítko "Edit" vedle dovednosti. 
         Formulář pro úpravu dovednosti se zobrazí, předvyplněný s daty dovednosti. Uživatel může aktualizovat název nebo funkci dovednosti a potvrdit změny.
