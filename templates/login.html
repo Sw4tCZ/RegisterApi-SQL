@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+        h1 {
+            font-size: 3em;
+            margin: 0 0 1em;
+        }
+        form {
+            background-color: #fff;
+            padding: 2em;
+            border-radius: 0.5em;
+            box-shadow: 0 0.25em 0.5em rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-size: 1.2em;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.5em;
+            margin-bottom: 1em;
+            font-size: 1.2em;
+            border-radius: 0.5em;
+            border: none;
+            box-shadow: 0 0.25em 0.5em rgba(0,0,0,0.1);
+        }
+        input[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            padding: 0.5em 1em;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 0.5em;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #222;
+        }
+        p {
+            margin-top: 1em;
+        }
+        a {
+            color: #333;
+            text-decoration: underline;
+        }
+        a:hover {
+            color: #222;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Login</h1>
+        {% if message %}
+            <p>{{ message }}</p>
+        {% endif %}
+        <form id="login-form" method="post">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <input type="submit" value="Login">
+        </form>
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+    </div>
+<script>
+document.getElementById('login-form').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const username = formData.get('username');
+  const password = formData.get('password');
+
+  fetch('/login', {
+    method: 'POST',
+    body: new FormData(event.target)
+  })
+    .then(response => response.json())
+    .then(data => {
+      sessionStorage.setItem('access_token', data.access_token);
+      window.location.href = '/dashboard?access_token=' + encodeURIComponent(data.access_token);
+    })
+    .catch(error => {
+      console.error('Error logging in:', error);
+    });
+});
+</script>
+
+</body>
+</html>

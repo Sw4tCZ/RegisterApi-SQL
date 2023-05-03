@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-size: 2rem;
+  color: #333;
+  text-align: center;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+input,
+button {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+}
+
+input {
+  flex: 1;
+  margin-right: 10px;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #0099ff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #007acc;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.edit-skill,
+.remove-skill {
+  background-color: #efefef;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-skill:hover {
+  background-color: #ddd;
+}
+
+.remove-skill:hover {
+  background-color: #f00;
+  color: #fff;
+}
+.logout-container {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.logout {
+  text-decoration: none;
+  color: #333;
+  font-size: 1.2rem;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px 20px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.logout:hover {
+  background-color: #0099ff;
+  color: #fff;
+}
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.skills-list-container {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.form-container {
+  flex: 1;
+}
+
+#edit-skill-form {
+  margin-top: 20px;
+}
+
+
+</style>
+</head>
+<body>
+    <h1>Welcome, {{ user.username }}!</h1>
+    <div class="logout-container">
+    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </div>
+<div class="container">
+  <div class="skills-list-container">
+    <h2>Your skills:</h2>
+    <ul>
+    {% for skill in skills %}
+        <li>
+            {{ skill.name }} - {{ skill.function }}
+            <button class="edit-skill" data-skill-id="{{ skill.id }}">Edit</button>
+            <button class="remove-skill" data-skill-id="{{ skill.id }}">Remove</button>
+        </li>
+    {% endfor %}
+    </ul>
+    </div>
+     <div class="form-container">
+    <h2>Add a new skill:</h2>
+    <form id="add-skill-form">
+        <label for="name">Skill name</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="function">Skill function</label>
+        <input type="text" id="function" name="function" required>
+        <br>
+        <input type="submit" value="Add Skill">
+    </form>
+    <h2>Edit skill:</h2>
+    <form id="edit-skill-form" style="display:none">
+        <label for="edit-name">Skill name</label>
+        <input type="text" id="edit-name" name="edit-name" required>
+        <br>
+        <label for="edit-function">Skill function</label>
+        <input type="text" id="edit-function" name="edit-function" required>
+        <br>
+        <input type="hidden" id="edit-skill-id" name="edit-skill-id">
+        <input type="submit" value="Save Changes">
+    </form>
+  </div>
+</div>
+<script>
+function handleEditSkill(event) {
+    const skillId = event.target.getAttribute('data-skill-id');
+    const accessToken = sessionStorage.getItem('access_token');
+
+    fetch('/get_skill?access_token=' + accessToken, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + accessToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ skill_id: skillId })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const editForm = document.getElementById('edit-skill-form');
+                editForm.style.display = 'block';
+                document.getElementById('edit-name').value = data.skill.name;
+                document.getElementById('edit-function').value = data.skill.function;
+                document.getElementById('edit-skill-id').value = data.skill.id;
+            } else {
+                console.error('Error fetching skill:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error sending request:', error);
+        });
+}
+
+document.querySelectorAll('.edit-skill').forEach(button => {
+    button.addEventListener('click', handleEditSkill);
+});
+
+document.getElementById('edit-skill-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const accessToken = sessionStorage.getItem('access_token');
+    const formData = new FormData(event.target);
+    const name = formData.get('edit-name');
+    const function_ = formData.get('edit-function');
+    const skillId = formData.get('edit-skill-id');
+
+    fetch('/edit_skill?access_token=' + accessToken, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: name, function: function_, skill_id: skillId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Aktualizujte dovednost v seznamu na stránce
+            const listItem = document.querySelector(`[data-skill-id="${skillId}"]`).parentNode;
+            listItem.textContent = `${data.skill.name} - ${data.skill.function}`;
+
+            // Přidejte tlačítka Edit a Remove zpět do položky seznamu
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.classList.add('edit-skill');
+            editButton.setAttribute('data-skill-id', data.skill.id);
+            editButton.addEventListener('click', handleEditSkill);
+            listItem.appendChild(editButton);
+
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.classList.add('remove-skill');
+            removeButton.setAttribute('data-skill-id', data.skill.id);
+            removeButton.addEventListener('click', removeSkillHandler);
+            listItem.appendChild(removeButton);
+
+            // Skryjte formulář pro editaci a vymažte jeho hodnoty
+            document.getElementById('edit-skill-form').style.display = 'none';
+            document.getElementById('edit-name').value = '';
+            document.getElementById('edit-function').value = '';
+            document.getElementById('edit-skill-id').value = '';
+        } else {
+            console.error('Error editing skill:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error sending request:', error);
+    });
+});
+</script>
+<script>
+    // Funkce pro odstranění dovednosti
+function removeSkillHandler(event) {
+  const skillId = event.target.getAttribute('data-skill-id');
+  const accessToken = sessionStorage.getItem('access_token');
+
+  fetch('/remove_skill?access_token=' + accessToken, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ skill_id: skillId }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === 'success') {
+        // Remove the skill from the list
+        event.target.parentNode.remove();
+      } else {
+        console.error('Error removing skill:', data);
+      }
+    })
+    .catch((error) => {
+      console.error('Error sending request:', error);
+    });
+}
+
+// Přidejte událost kliknutí na tlačítko "Remove" pro existující dovednosti
+document.querySelectorAll('.remove-skill').forEach(function (button) {
+  button.addEventListener('click', removeSkillHandler);
+});
+
+
+</script>
+<script>
+document.getElementById('add-skill-form').addEventListener('submit', function (event) {
+  event.preventDefault();
+
+  const accessToken = sessionStorage.getItem('access_token');
+  const formData = new FormData(event.target);
+  const name = formData.get('name');
+  const function_ = formData.get('function');
+
+  fetch('/add_skill?access_token=' + accessToken, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name: name, function: function_ }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      // Přidejte novou dovednost do seznamu na stránce
+      const skillsList = document.querySelector('ul');
+      const newItem = document.createElement('li');
+      newItem.innerHTML = `${data.name} - ${data.function} <button class="edit-skill" data-skill-id="${data.id}">Edit</button> <button class="remove-skill" data-skill-id="${data.id}">Remove</button>`;
+      skillsList.appendChild(newItem);
+
+      // Přidejte událost kliknutí na tlačítko "Remove" pro novou dovednost
+      newItem.querySelector('.remove-skill').addEventListener('click', removeSkillHandler);
+
+      // Přidejte událost kliknutí na tlačítko "Edit" pro novou dovednost
+      newItem.querySelector('.edit-skill').addEventListener('click', handleEditSkill);
+
+      // Vymažte formulář
+      event.target.reset();
+    })
+    .catch((error) => {
+      console.error('Error sending request:', error);
+    });
+});
+
+</script>
+</body>
+</html>
