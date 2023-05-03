@@ -1,4 +1,5 @@
 # RegisterApi-SQL
+![Example image](https://github.com/Sw4tCZ/RegisterApi-SQL/blob/main/API1.png)
 
 Tato webová aplikace je navržena v angličtině tak, aby uživatelům umožnila spravovat své dovednosti. Aplikace obsahuje následující funkce:
 
